@@ -1,6 +1,6 @@
 <?php
 
-namespace samejack\PHP;
+namespace phlnx\PHP;
 
 class ArgvParser
 {
@@ -12,7 +12,7 @@ class ArgvParser
      * @param array|string [$message] input arguments
      * @return array Configs Key/Value
      */
-    public function parseConfigs(&$message = null)
+    public function parse($message = null)
     {
         if (is_string($message)) {
             $argv = explode(' ', $message);
@@ -25,34 +25,39 @@ class ArgvParser
             }
         }
 
-        $index = 0;
-        $configs = array();
-        while ($index < self::MAX_ARGV && isset($argv[$index])) {
-            if (preg_match('/^([^-\=]+.*)$/', $argv[$index], $matches) === 1) {
-                // not have ant -= prefix
-                $configs[$matches[1]] = true;
-            } else if (preg_match('/^-+(.+)$/', $argv[$index], $matches) === 1) {
-                // match prefix - with next parameter
-                if (preg_match('/^-+(.+)\=(.+)$/', $argv[$index], $subMatches) === 1) {
-                    $configs[$subMatches[1]] = $subMatches[2];
-                } else if (isset($argv[$index + 1]) && preg_match('/^[^-\=]+$/', $argv[$index + 1]) === 1) {
-                    // have sub parameter
-                    $configs[$matches[1]] = $argv[$index + 1];
-                    $index++;
-                } elseif (strpos($matches[0], '--') === false) {
-                    for ($j = 0; $j < strlen($matches[1]); $j += 1) {
-                        $configs[$matches[1][$j]] = true;
-                    }
-                } else if (isset($argv[$index + 1]) && preg_match('/^[^-].+$/', $argv[$index + 1]) === 1) {
-                    $configs[$matches[1]] = $argv[$index + 1];
-                    $index++;
+        $switch = array();
+        $param = array();
+        $argCounter = 0;
+        foreach ($argv as $arg) {
+            if (++$argCounter > self::MAX_ARGV) {
+                break;
+            }
+            if (substr($arg, 0, 2) == '--') {
+                $eqPos = strpos($arg, '=');
+                if ($eqPos === false) {
+                    $key = substr($arg, 2);
+                    $switch["$key"] = isset ($switch["$key"]) ? $switch["$key"] : true;
                 } else {
-                    $configs[$matches[1]] = true;
+                    $key = substr($arg, 2, $eqPos - 2);
+                    $switch["$key"] = substr($arg, $eqPos + 1);
+                }
+            } else {
+                if (substr($arg, 0, 1) == '-') {
+                    if (substr($arg, 2, 1) == '=') {
+                        $key = substr($arg, 1, 1);
+                        $switch["$key"] = substr($arg, 3);
+                    } else {
+                        $chars = str_split(substr($arg, 1));
+                        foreach ($chars as $char) {
+                            $key = $char;
+                            $switch["$key"] = isset ($switch["$key"]) ? $switch["$key"] : true;
+                        }
+                    }
+                } else {
+                    $param[] = "$arg";
                 }
             }
-            $index++;
         }
-
-        return $configs;
+        return array('switch' => $switch, 'param' => $param);
     }
 }

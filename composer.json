@@ -1,16 +1,14 @@
 {
-  "name": "samejack/php-argv",
+  "name": "phlnx/php-argv",
   "description": "PHP CLI arguments parse.",
-  "homepage": "https://github.com/samejack/php-argv",
+  "homepage": "https://github.com/phlnx/php-argv",
   "keywords": ["cli", "php"],
   "license": "Apache-2.0",
   "type": "library",
   "authors": [
     {
-      "name": "SJ",
-      "email": "sj@toright.com",
-      "homepage": "http://blog.toright.com",
-      "role": "Developer"
+      "name": "phlnx",
+      "email": "mnlg@pm.me"
     }
   ],
   "require": {
@@ -22,6 +20,6 @@
      "php-coveralls/php-coveralls": "*@stable"
   },
   "autoload": {
-    "psr-4": {"samejack\\": "src/"}
+    "psr-4": {"phlnx\\": "src/"}
   }
 }
